@@ -1,0 +1,133 @@
+Database Schema
+1. Users
+user_id (Primary Key): Unique identifier for each user.
+name: Full name of the user.
+email_or_phone: Email address (used for login).
+password: Hashed password for authentication.
+dob: date of birth to calculate age.
+gender: Gender (Male/Female/Other).
+language_preference: Preferred language (English/Urdu).
+role: Role of the user (e.g., General User, Healthcare Professional).
+created_at: Timestamp when the account was created.
+updated_at: Timestamp for the last update.
+
+2. Latest Health Metrics (Current State)
+metric_id (Primary Key): Unique identifier for each health metric entry.
+user_id (Foreign Key): Links to the Users table.
+weight (FLOAT): Latest weight in kilograms.
+systolic (INT): Latest systolic blood pressure.
+diastolic (INT): Latest diastolic blood pressure.
+heart_rate (INT): Latest heart rate in beats per minute.
+temperature (FLOAT): Latest body temperature in Celsius.
+blood_oxygen (FLOAT): Latest blood oxygen saturation percentage.
+glucose_level (FLOAT): Latest blood glucose level.
+abnormal_flag (BOOLEAN): Indicates if any metric is abnormal.
+last_updated (TIMESTAMP): Timestamp for the latest update.
+
+3. Historical Vitals (Separate Tables for Each Measurement)
+WeightMeasurements Table
+
+weight_id (Primary Key): Unique identifier for the weight entry.
+user_id (Foreign Key): Links to the Users table.
+weight (FLOAT): Weight in kilograms.
+timestamp (TIMESTAMP): Timestamp when the weight was recorded.
+
+BloodPressureMeasurements Table
+
+bp_id (Primary Key): Unique identifier for the blood pressure entry.
+user_id (Foreign Key): Links to the Users table.
+systolic (INT): Systolic blood pressure.
+diastolic (INT): Diastolic blood pressure.
+timestamp (TIMESTAMP): Timestamp when the measurement was taken.
+
+HeartRateMeasurements Table
+
+heart_rate_id (Primary Key): Unique identifier for the heart rate entry.
+user_id (Foreign Key): Links to the Users table.
+heart_rate (INT): Heart rate in beats per minute.
+timestamp (TIMESTAMP): Timestamp when the heart rate was recorded.
+
+BloodOxygenMeasurements Table
+
+oxygen_id (Primary Key): Unique identifier for the oxygen level entry.
+user_id (Foreign Key): Links to the Users table.
+blood_oxygen (FLOAT): Blood oxygen saturation percentage.
+timestamp (TIMESTAMP): Timestamp when the oxygen level was recorded.
+
+TemperatureMeasurements Table
+
+temperature_id (Primary Key): Unique identifier for the temperature entry.
+user_id (Foreign Key): Links to the Users table.
+temperature (FLOAT): Body temperature in Celsius.
+timestamp (TIMESTAMP): Timestamp when the temperature was recorded.
+
+GlucoseMeasurements Table
+
+glucose_id (Primary Key): Unique identifier for the glucose level entry.
+user_id (Foreign Key): Links to the Users table.
+glucose_level (FLOAT): Blood glucose level.
+timestamp (TIMESTAMP): Timestamp when the measurement was recorded.
+
+4. Recommendations
+recommendation_id (Primary Key): Unique identifier for each recommendation.
+user_id (Foreign Key): Links to the Users table.
+metric_id (Foreign Key): Links to the Latest Health Metrics table.
+recommendation_text: Text of the recommendation.
+status (ENUM): Status of the recommendation (Pending/Completed).
+created_at (TIMESTAMP): Timestamp when the recommendation was generated.
+updated_at (TIMESTAMP): Timestamp for the last update.
+
+5. Gamification
+gamification_id (Primary Key): Unique identifier for gamification data.
+user_id (Foreign Key): Links to the Users table.
+points (INT): Total points earned by the user.
+badges (JSON): List of badges earned in JSON format.
+challenges_completed (INT): Count of challenges completed.
+leaderboard_rank (INT): User's rank on the leaderboard.
+last_updated (TIMESTAMP): Timestamp of the last update.
+
+6. Devices
+device_id (Primary Key): Unique identifier for each device.
+device_name (VARCHAR): Name of the device (e.g., Weight Machine).
+device_type (VARCHAR): Type of device (e.g., BLE-enabled).
+status (ENUM): Status of the device (Active/Inactive).
+last_connected (TIMESTAMP): Timestamp for the last connection.
+
+7. Feedback
+feedback_id (Primary Key): Unique identifier for feedback.
+user_id (Foreign Key): Links to the Users table.
+feedback_text (TEXT): Text of the feedback provided by the user.
+rating (INT): Numeric rating (1–5).
+submitted_at (TIMESTAMP): Timestamp when the feedback was submitted.
+
+8. Logs
+log_id (Primary Key): Unique identifier for each log entry.
+user_id (Foreign Key): Links to the Users table.
+action (TEXT): Description of the action performed (e.g., "Login").
+timestamp (TIMESTAMP): Timestamp of the action.
+ip_address (VARCHAR): IP address of the user.
+
+9. Security
+auth_id (Primary Key): Unique identifier for authentication session.
+user_id (Foreign Key): Links to the Users table.
+auth_token (TEXT): Token for the active session.
+expiration (TIMESTAMP): Expiration time of the token.
+
+10. Alerts
+alert_id (Primary Key): Unique identifier for alerts.
+user_id (Foreign Key): Links to the Users table.
+metric_id (Foreign Key): Links to the Latest Health Metrics table.
+alert_text (TEXT): Text of the alert message.
+is_read (BOOLEAN): Indicates if the alert was read.
+created_at (TIMESTAMP): Timestamp when the alert was generated.
+
+Relationships
+Users ↔ Historical Vitals: One-to-Many.
+Users ↔ Latest Health Metrics: One-to-One.
+Users ↔ Recommendations: One-to-Many.
+Users ↔ Gamification: One-to-One.
+Users ↔ Devices: One-to-Many.
+Users ↔ Feedback: One-to-Many.
+Users ↔ Logs: One-to-Many.
+Health Metrics ↔ Recommendations: One-to-One.
+

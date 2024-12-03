@@ -2,15 +2,16 @@ package com.example.iwms.iwms.controller;
 
 import com.example.iwms.iwms.entity.User;
 import com.example.iwms.iwms.repository.UserRepository;
+import com.example.iwms.iwms.service.UserDetailsServiceImpl;
+import com.example.iwms.iwms.utils.JwtUtil;
+import com.example.iwms.iwms.dto.LoginRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.example.iwms.iwms.service.UserDetailsServiceImpl;
-import com.example.iwms.iwms.utils.JwtUtil;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,16 +32,6 @@ public class AuthController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        return jwtUtil.generateToken(userDetails.getUsername());
-    }
-
-
-
-    
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
         // Check if a user with the same email or phone already exists
@@ -62,5 +53,28 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("User registered successfully!");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
+
+        try {
+            // Authenticate user
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+
+            // Load user details and generate JWT
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            String token = jwtUtil.generateToken(userDetails.getUsername());
+
+            // return ResponseEntity.ok(userDetails.getPassword());
+            // String token = passwordEncoder.encode(userDetails.getUsername()+userDetails.getPassword());
+            return ResponseEntity.ok(token);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
+        }
     }
 }

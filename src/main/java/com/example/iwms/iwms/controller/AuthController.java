@@ -10,8 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.iwms.iwms.repository.SecurityRepository;
+import com.example.iwms.iwms.entity.Security;
+import java.security.Timestamp;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,14 +27,15 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final SecurityRepository securityRepository;
 
-    public AuthController(AuthenticationManager authenticationManager, UserDetailsServiceImpl userDetailsService,
-                          JwtUtil jwtUtil, PasswordEncoder passwordEncoder, UserRepository userRepository) {
+    public AuthController(AuthenticationManager authenticationManager, UserDetailsServiceImpl userDetailsService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder, UserRepository userRepository, SecurityRepository securityRepository) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.securityRepository = securityRepository;
     }
 
     @PostMapping("/register")
@@ -68,13 +74,22 @@ public class AuthController {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             String token = jwtUtil.generateToken(userDetails.getUsername());
 
-            // return ResponseEntity.ok(userDetails.getPassword());
-            // String token = passwordEncoder.encode(userDetails.getUsername()+userDetails.getPassword());
+            // Retrieve the User entity
+            User user = userRepository.findByEmailOrPhone(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+            // Create and save Security record
+            Security security = new Security();
+            security.setUser(user);
+            security.setAuthToken(token);
+            security.setExpiration(null);
+            securityRepository.save(security);
+
             return ResponseEntity.ok(token);
-            
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(e.getMessage());
+                    .body("Invalid username or password!");
         }
     }
 }

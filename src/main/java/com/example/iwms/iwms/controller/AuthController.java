@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 
 @RestController
 @RequestMapping("/api/auth")
+// @CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;

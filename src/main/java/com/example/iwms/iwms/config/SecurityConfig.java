@@ -18,6 +18,7 @@ public class SecurityConfig {
         http.csrf().disable()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // Open endpoints for login and register
+                        .requestMatchers("/api/dashboard/**").permitAll() // Protect dashboard
                         .anyRequest().authenticated()
                 );
         return http.build();

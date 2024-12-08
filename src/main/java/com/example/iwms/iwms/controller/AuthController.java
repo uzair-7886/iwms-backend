@@ -47,30 +47,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user, HttpServletRequest request) {
-        // Check if a user with the same email or phone already exists
         if (userRepository.findByEmailOrPhone(user.getEmailOrPhone()).isPresent()) {
-            // Create and save log entry for existing user
             Log log = new Log();
             log.setAction("User Already Exists");
             log.setTimestamp(new Timestamp(System.currentTimeMillis()));
             log.setIpAddress(request.getRemoteAddr());
             logRepository.save(log);
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("User with email or phone already exists!");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User with email or phone already exists!");
         }
 
-        // Encode the user's password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // Set default role if not provided
-        if (user.getRole() == null) {
-            user.setRole("USER");
-        }
-
-        // Save the user to the database
+        if (user.getRole() == null) user.setRole("USER");
         user = userRepository.save(user);
 
-        // Create and save log entry
         Log log = new Log();
         log.setUser(user);
         log.setAction("User Registered");
@@ -78,8 +67,7 @@ public class AuthController {
         log.setIpAddress(request.getRemoteAddr());
         logRepository.save(log);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("User registered successfully!");
+        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
     }
 
     @PostMapping("/login")
@@ -88,25 +76,19 @@ public class AuthController {
         String password = loginRequest.getPassword();
 
         try {
-            // Authenticate user
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
-            // Load user details and generate JWT
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             String token = jwtUtil.generateToken(userDetails.getUsername());
 
-            // Retrieve the User entity
             User user = userRepository.findByEmailOrPhone(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-            // Create and save Security record
             Security security = new Security();
             security.setUser(user);
             security.setAuthToken(token);
             security.setExpiration(new Timestamp(jwtUtil.getExpirationDateFromToken(token).getTime()));
             securityRepository.save(security);
 
-            // Create and save log entry
             Log log = new Log();
             log.setUser(user);
             log.setAction("User Logged In");
@@ -117,14 +99,37 @@ public class AuthController {
             return ResponseEntity.ok(token);
 
         } catch (Exception e) {
-            // Log failed login attempt
             Log log = new Log();
             log.setAction("Failed Login Attempt");
             log.setTimestamp(new Timestamp(System.currentTimeMillis()));
             log.setIpAddress(request.getRemoteAddr());
             logRepository.save(log);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid username or password!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
         }
     }
+
+    // @GetMapping("/dashboard")
+    // public ResponseEntity<Object> getDashboard(HttpServletRequest request) {
+    //     try {
+    //         // Extract token from Authorization header
+    //         String authHeader = request.getHeader("Authorization");
+    //         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    //             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
+    //         }
+
+    //         String token = authHeader.substring(7);
+    //         String username = jwtUtil.extractUsername(token);
+
+    //         // Retrieve user from the database
+    //         User user = userRepository.findByEmailOrPhone(username)
+    //                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+    //         // Return user details
+    //         return ResponseEntity.ok(user);
+
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token or user not found");
+    //     }
+    // }
+
 }

@@ -19,6 +19,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // Open endpoints for login and register
                         .requestMatchers("/api/dashboard/**").permitAll() // Protect dashboard
+                        .requestMatchers("/api/measurements/**").permitAll() // Protect measurements
                         .anyRequest().authenticated()
                 );
         return http.build();

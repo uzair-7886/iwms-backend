@@ -11,10 +11,15 @@ import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import lombok.Data;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "weight_measurements")
 public class WeightMeasurement {
     @Id

@@ -231,6 +231,8 @@ public class AuthController {
                     log.setTimestamp(new Timestamp(System.currentTimeMillis()));
                     log.setIpAddress(request.getRemoteAddr());
                     logRepository.save(log);
+
+                    // System.out.println(token);
                     
                     return ResponseEntity.ok(token);
                 }

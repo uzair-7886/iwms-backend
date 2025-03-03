@@ -1,0 +1,324 @@
+WELLNESS MONITORING RULEBASE
+============================
+
+The following symbolic AI rulebase uses these parameters:
+- Weight (kg)
+- Height (m)
+- Temperature (°C)
+- Blood Pressure (Systolic/Diastolic, mmHg)
+- Glucose Level (mg/dL, fasting unless specified)
+- SpO2 (%)
+
+--------------------------------
+1. BMI-RELATED RULES
+--------------------------------
+
+Definition:
+    BMI = weight (kg) / [height (m)]²
+    
+    Typical BMI Categories (general guidelines):
+      - Underweight: < 18.5
+      - Normal weight: 18.5–24.9
+      - Overweight: 25.0–29.9
+      - Obese: ≥ 30.0
+
+Rule 1: Underweight BMI
+IF BMI < 18.5
+THEN 
+  - Recommend increasing daily caloric intake by ~300–500 kcal.
+  - Suggest 5 small, balanced meals per day.
+  - Encourage moderate resistance training 2–3 times per week.
+  - Recommend ~7000 steps per day to maintain cardiovascular fitness.
+  - Advise protein-rich snacks (e.g., Greek yogurt, nuts) between meals.
+
+Rule 2: Normal BMI
+IF 18.5 <= BMI <= 24.9
+THEN 
+  - Maintain current diet and exercise routine.
+  - Encourage 8000–10,000 steps per day.
+  - Include 2–3 sessions of 20-minute moderate exercise or yoga per week.
+  - Advise balanced macronutrient intake.
+
+Rule 3: Overweight BMI
+IF 25.0 <= BMI <= 29.9
+THEN 
+  - Recommend moderate caloric deficit (~250–500 kcal below maintenance).
+  - Encourage 10,000–12,000 steps daily.
+  - Suggest 3–5 cardio sessions/week (30 minutes each).
+  - Advise reducing high-sugar snacks and sugary beverages.
+  - Promote mindful eating (eat slowly, reduce portion sizes).
+
+Rule 4: Obese BMI
+IF BMI >= 30.0
+THEN
+  - Recommend consulting a nutritionist for a personalized meal plan.
+  - Suggest 10,000 steps daily (or build up gradually).
+  - Encourage low-impact exercises (swimming, elliptical) 4–5 times/week.
+  - Advise keeping a food diary to track habits.
+  - Encourage stress management (deep breathing, meditation) to reduce overeating triggers.
+
+--------------------------------
+2. TEMPERATURE-RELATED RULES
+--------------------------------
+
+Definition (approximate):
+    - Normal: 36.5°C–37.5°C (97.7°F–99.5°F)
+    - Elevated: 37.6°C–38.0°C (99.6°F–100.4°F)
+    - Fever: > 38.0°C (>100.4°F)
+
+Rule 5: Normal Temperature
+IF 36.5°C <= Temperature <= 37.5°C
+THEN 
+  - No temperature-related intervention needed.
+  - Continue regular hydration (6–8 glasses of water per day).
+  - Follow regular daily wellness routine.
+
+Rule 6: Mildly Elevated Temperature
+IF 37.6°C <= Temperature <= 38.0°C
+THEN 
+  - Recommend rest and increased fluid intake.
+  - Suggest checking temperature every 4 hours.
+  - Encourage light stretching or gentle yoga if tolerated.
+  - Advise reducing strenuous activities until temperature normalizes.
+
+Rule 7: Fever
+IF Temperature > 38.0°C
+THEN
+  - Recommend resting, staying hydrated (8+ glasses water/electrolytes).
+  - Consider over-the-counter fever reducer if appropriate.
+  - Check temperature every 2 hours.
+  - Postpone intense exercise until fever subsides.
+  - Contact healthcare professional if fever persists beyond 24–48 hours or worsens.
+
+--------------------------------
+3. BLOOD PRESSURE–RELATED RULES
+--------------------------------
+
+General Guidelines:
+    - Normal: <120/80 mmHg
+    - Elevated: 120–129/<80 mmHg
+    - Stage 1 Hypertension: 130–139 or 80–89 mmHg
+    - Stage 2 Hypertension: ≥140 or ≥90 mmHg
+    - Hypotension: <90/60 mmHg
+
+Rule 8: Normal BP
+IF Systolic BP < 120 AND Diastolic BP < 80
+THEN 
+  - Maintain current exercise routine (e.g., 10,000 steps, moderate cardio).
+  - Advise balanced diet with fruits, vegetables, whole grains.
+  - Suggest regular stress management (deep breathing, 5 min/day).
+
+Rule 9: Elevated BP
+IF 120 <= Systolic BP <= 129 AND Diastolic BP < 80
+THEN 
+  - Recommend increasing aerobic exercise (walking, cycling) ~150 min/week.
+  - Suggest limiting sodium intake (<2300 mg/day).
+  - Encourage daily relaxation techniques (guided breathing 10 min/day).
+  - Advise monitoring BP at least once a week.
+
+Rule 10: Stage 1 Hypertension
+IF (130 <= Systolic BP <= 139) OR (80 <= Diastolic BP <= 89)
+THEN 
+  - Recommend moderate intensity exercise 5 days/week (30 min each).
+  - Advise adopting a DASH-style diet.
+  - Limit alcohol and high-caffeine drinks.
+  - Suggest weight management if BMI > 24.9.
+  - Encourage stress-reduction activities (yoga, journaling).
+
+Rule 11: Stage 2 Hypertension
+IF Systolic BP >= 140 OR Diastolic BP >= 90
+THEN 
+  - Strongly recommend consulting a healthcare provider for medication.
+  - Emphasize low-sodium, nutrient-dense diet.
+  - Encourage gentle exercise daily, focusing on low-impact if needed.
+  - Recommend monitoring BP at home daily.
+  - Encourage relaxation apps or guided meditation for stress.
+
+Rule 12: Hypotension
+IF Systolic BP < 90 AND Diastolic BP < 60
+THEN 
+  - Advise increasing fluid and salt intake (if no contraindications).
+  - Encourage slow posture changes (rise slowly).
+  - Suggest mild to moderate exercise to improve circulation.
+  - Recommend monitoring for dizziness or fatigue; rest if needed.
+  - Consult healthcare professional if severe symptoms occur.
+
+--------------------------------
+4. GLUCOSE-LEVEL–RELATED RULES
+--------------------------------
+
+Fasting Glucose (common references):
+    - Normal: ~70–99 mg/dL
+    - Prediabetes: 100–125 mg/dL
+    - Diabetes (fasting): ≥126 mg/dL
+    - Hypoglycemia: <70 mg/dL
+
+Rule 13: Normal Glucose
+IF 70 mg/dL <= Fasting Glucose <= 99 mg/dL
+THEN 
+  - Maintain a balanced diet with moderate carbs.
+  - Recommend regular exercise (e.g., 10,000 steps, moderate workouts).
+  - Encourage consistent meal timing.
+
+Rule 14: Prediabetes Range
+IF 100 mg/dL <= Fasting Glucose <= 125 mg/dL
+THEN 
+  - Reduce simple sugars/refined carbs.
+  - Emphasize dietary fiber (whole grains, veggies, legumes).
+  - 30 min moderate-intensity exercise 5 days/week.
+  - Lose 5–7% of body weight if overweight/obese.
+  - Monitor glucose levels regularly.
+
+Rule 15: Diabetes Range
+IF Fasting Glucose >= 126 mg/dL
+THEN 
+  - Consult healthcare provider for possible medication/insulin.
+  - Carbohydrate counting and meal planning recommended.
+  - Daily physical activity (e.g., brisk walk after meals).
+  - Check blood glucose regularly (per professional advice).
+  - Control other risk factors (weight, BP).
+
+Rule 16: Hypoglycemia
+IF Fasting Glucose < 70 mg/dL
+THEN
+  - Immediately take fast-acting carbs (e.g., glucose tablets, fruit juice).
+  - Recheck glucose after 15 minutes.
+  - Once stable, eat balanced snack (protein + complex carb).
+  - Assess medication or meal timing if recurrent.
+  - Consult healthcare if persistent or severe.
+
+--------------------------------
+5. SpO2-RELATED RULES
+--------------------------------
+
+General Guidelines:
+    - Normal: 95–100%
+    - Mildly Low: 91–94%
+    - Significantly Low: ≤90%
+
+Rule 17: Normal SpO2
+IF SpO2 >= 95%
+THEN 
+  - No oxygenation-related intervention needed.
+  - Encourage regular aerobic exercise for lung health.
+  - Suggest deep breathing exercises (5 min, 2x/day).
+  - Advise avoiding smoking/polluted environments.
+
+Rule 18: Mildly Low SpO2
+IF 91% <= SpO2 <= 94%
+THEN 
+  - Recommend short breaks of deep breathing exercises.
+  - Encourage mild to moderate aerobic exercise if appropriate.
+  - Check for environmental factors affecting breathing.
+  - Consult a healthcare professional if it persists or worsens.
+
+Rule 19: Significantly Low SpO2
+IF SpO2 <= 90%
+THEN 
+  - Advise immediate medical evaluation (rule out serious respiratory issues).
+  - Recommend rest, monitor SpO2 closely.
+  - Use supplemental oxygen if prescribed.
+  - Avoid strenuous activity until levels improve.
+  - Encourage deep, slow breathing or respiratory physiotherapy.
+
+--------------------------------
+6. CROSS-PARAMETER (COMBINED) RULES
+--------------------------------
+
+Rule 20: Overweight + Elevated BP
+IF (25.0 <= BMI <= 29.9) AND (120 <= Systolic BP <= 129) AND (Diastolic BP < 80)
+THEN 
+  - Emphasize low-sodium, nutrient-dense diet.
+  - Encourage daily 30-minute brisk walks (~10,000 steps).
+  - Suggest daily stress reduction (journaling, 5-min mindfulness).
+  - Recommend weekly BP monitoring to track progress.
+
+Rule 21: Obesity + Prediabetes
+IF (BMI >= 30.0) AND (100 mg/dL <= Fasting Glucose <= 125 mg/dL)
+THEN 
+  - Recommend consulting a dietitian for a structured weight-loss program.
+  - Encourage supervised exercise if needed.
+  - 150–300 minutes/week of moderate exercise.
+  - Consistent meal timing and portion control.
+  - Suggest aiming for 1–2 lbs/week weight loss.
+
+Rule 22: Fever + Low SpO2
+IF (Temperature > 38.0°C) AND (SpO2 < 95%)
+THEN 
+  - Advise seeking medical attention to rule out serious infection or respiratory issue.
+  - Recommend rest, increased fluids, and fever-reducing medication if appropriate.
+  - Encourage gentle breathing exercises if tolerable.
+  - Monitor SpO2 and temperature every few hours.
+
+Rule 23: Hypertension + High Blood Glucose
+IF (Systolic BP >= 140 OR Diastolic BP >= 90) AND (Fasting Glucose >= 126 mg/dL)
+THEN
+  - Strongly advise medical intervention for both conditions.
+  - Promote strict dietary approach (low-sodium, low sugar).
+  - Suggest moderate daily exercise (30 min walks).
+  - Encourage frequent monitoring (BP daily, glucose as recommended).
+  - Stress management is crucial (meditation, counseling, relaxation apps).
+
+Rule 24: Low BP + Underweight
+IF (Systolic BP < 90 AND Diastolic BP < 60) AND (BMI < 18.5)
+THEN
+  - Advise increasing caloric and fluid intake.
+  - Suggest small, frequent meals for steady energy.
+  - Recommend moderate salt intake if medically appropriate.
+  - Encourage gentle strength exercises to gain muscle mass.
+  - Rise slowly from sitting/lying positions.
+
+Rule 25: Mildly Elevated BP + Mildly Low SpO2
+IF (120 <= Systolic BP <= 129 AND Diastolic BP < 80) AND (91% <= SpO2 <= 94%)
+THEN
+  - Encourage mild cardiovascular exercise (walking, cycling) to improve both.
+  - Advise reducing stress (deep breathing exercises).
+  - Recommend limiting high-caffeine/stimulant intake.
+  - Suggest monitoring both BP and SpO2 daily/weekly to observe trends.
+
+--------------------------------
+7. LIFESTYLE & BEHAVIORAL RECOMMENDATIONS
+--------------------------------
+
+These rules consider user-reported data (step count, sleep hours, stress level, etc.):
+
+Rule 26: Low Daily Steps
+IF user_daily_step_count < 5000
+THEN 
+  - Recommend incremental walking goals (+500 steps/week).
+  - Suggest smartphone reminders or fitness trackers.
+  - Encourage short 5-minute walks every hour if possible.
+
+Rule 27: Poor Sleep (< 6 hours/night)
+IF user_reported_sleep_hours < 6
+THEN 
+  - Encourage fixed bedtime routine, minimal screens before bed.
+  - Suggest a 10-minute evening meditation or breathing exercise.
+  - Limit caffeine after early afternoon.
+  - Check bedroom environment (noise, light, temperature).
+
+Rule 28: High Stress Score
+IF user_reported_stress_level >= 8 (1-10 scale)
+THEN
+  - Suggest daily 10-minute deep breathing or muscle relaxation.
+  - Encourage short breaks for mindfulness or stretching at work.
+  - Recommend journaling or counseling if persistent.
+  - Moderate physical activity to alleviate stress (yoga, brisk walks).
+
+Rule 29: Dehydration Risk
+IF user_daily_water_intake < 4 glasses (~1 liter)
+THEN 
+  - Increase water intake to 6–8 glasses/day.
+  - Use a water bottle with volume markers.
+  - Drink water after workouts and upon waking.
+
+Rule 30: Sedentary Office Worker + Normal Vitals
+IF (user_occupation == "Desk Job") AND (All Vitals in Normal Range)
+THEN 
+  - Take 2–3 short breaks every hour to stand or move.
+  - Encourage 10,000 daily steps to counter a sedentary lifestyle.
+  - Suggest using a standing desk or ergonomic adjustments if possible.
+
+--------------------------------
+END OF WELLNESS MONITORING RULEBASE
+--------------------------------

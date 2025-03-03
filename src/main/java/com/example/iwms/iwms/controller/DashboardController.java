@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -32,21 +34,35 @@ public class DashboardController {
             // Extract token from Authorization header
             String authHeader = request.getHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                     .body("Missing or invalid Authorization header");
             }
-
+    
             String token = authHeader.substring(7);
             String username = jwtUtil.extractUsername(token);
-
-            // Retrieve user from the database
-            User user = userRepository.findByEmailOrPhone(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
+    
+            // Try finding the user by email/phone first.
+            Optional<User> userOptional = userRepository.findByEmailOrPhone(username);
+            User user;
+            if (userOptional.isPresent()) {
+                user = userOptional.get();
+            } else {
+                // If not found, try to parse the username as a userId and look it up.
+                try {
+                    Long userId = Long.parseLong(username);
+                    user = userRepository.findById(userId)
+                            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                } catch (NumberFormatException ex) {
+                    throw new UsernameNotFoundException("User not found: " + username);
+                }
+            }
+    
             // Return user details
             return ResponseEntity.ok(user);
-
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token or user not found");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                 .body("Invalid token or user not found");
         }
     }
+    
 }

@@ -208,7 +208,7 @@ public class AuthController {
             List<User> usersWithFace = userRepository.findAll().stream()
                     .filter(u -> u.getFaceEmbedding() != null)
                     .collect(Collectors.toList());
-            double threshold = 0.5;
+            double threshold = 0.7;
             
             for (User user : usersWithFace) {
                 List<Double> storedEmbedding = objectMapper.readValue(user.getFaceEmbedding(), new TypeReference<List<Double>>() {});

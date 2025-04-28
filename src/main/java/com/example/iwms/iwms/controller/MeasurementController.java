@@ -1,8 +1,11 @@
 package com.example.iwms.iwms.controller;
 
+import com.example.iwms.iwms.dto.HistoryResponse;
+import com.example.iwms.iwms.dto.VitalRecord;
 import com.example.iwms.iwms.entity.*;
 import com.example.iwms.iwms.repository.*;
 import com.example.iwms.iwms.utils.JwtUtil;
+import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -13,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-
+import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
+import java.util.Map;
 @RestController
 @RequestMapping("/api/measurements")
 public class MeasurementController {
@@ -195,4 +200,79 @@ public class MeasurementController {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         return user.getUserId();
     }
+
+    @GetMapping("/history")
+public ResponseEntity<HistoryResponse> getVitalsHistory(HttpServletRequest request) {
+    // 1) Authenticate
+    Long userId = getUserIdFromToken(request);
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+    // 2) Fetch last 7 records each
+    List<WeightMeasurement> weights  = weightRepo.findTop7ByUserOrderByTimestampAsc(user);
+    List<TemperatureMeasurement> temps = temperatureRepo.findTop7ByUserOrderByTimestampAsc(user);
+    List<HeartRateMeasurement> hrs   = heartRateRepo.findTop7ByUserOrderByTimestampAsc(user);
+    List<GlucoseMeasurement> glcs    = glucoseRepo.findTop7ByUserOrderByTimestampAsc(user);
+    List<BloodPressureMeasurement> bps = bpRepo.findTop7ByUserOrderByTimestampAsc(user);
+    List<BloodOxygenMeasurement> sps  = oxygenRepo.findTop7ByUserOrderByTimestampAsc(user);
+
+    // 3) Build List<Number> for each
+    List<Number> weightArr = weights.stream()
+        .map(m -> (Number) m.getWeight())
+        .collect(Collectors.toList());
+    List<Number> tempArr = temps.stream()
+        .map(m -> (Number) m.getTemperature())
+        .collect(Collectors.toList());
+    List<Number> hrArr = hrs.stream()
+        .map(m -> (Number) m.getHeartRate())
+        .collect(Collectors.toList());
+    List<Number> glucoseArr = glcs.stream()
+        .map(m -> (Number) m.getGlucoseLevel())
+        .collect(Collectors.toList());
+    List<Number> bpArr = bps.stream()
+        .map(m -> (Number) m.getSystolic())
+        .collect(Collectors.toList());
+    List<Number> spo2Arr = sps.stream()
+        .map(m -> (Number) m.getBloodOxygen())
+        .collect(Collectors.toList());
+
+    // 4) Build date labels
+    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM/dd");
+    List<String> dateLabels = weights.stream()
+        .map(m -> m.getTimestamp().toLocalDateTime().format(fmt))
+        .collect(Collectors.toList());
+
+    // 5) Build the "latest" snapshot
+    LatestHealthMetrics latestMetrics = latestMetricsRepo.findByUser(user)
+        .orElseThrow(() -> new RuntimeException("No latest metrics found"));
+
+    VitalRecord latest = new VitalRecord();
+    latest.setId(latestMetrics.getMetricId());
+    latest.setDate(latestMetrics.getLastUpdated()
+                      .toLocalDateTime()
+                      .toLocalDate()
+                      .toString());
+    latest.setWeight(latestMetrics.getWeight() + " kg");
+    latest.setBp(latestMetrics.getSystolic() + "/" +
+                 latestMetrics.getDiastolic() + " mmHg");
+    latest.setHeartRate(latestMetrics.getHeartRate() + " bpm");
+    latest.setGlucose(latestMetrics.getGlucoseLevel() + " mg/dL");
+    latest.setSpo2(latestMetrics.getBloodOxygen() + "%");
+    latest.setTemperature(latestMetrics.getTemperature() + "°C");
+
+    // 6) Assemble and return
+    HistoryResponse resp = new HistoryResponse();
+    resp.setHistoricalData(Map.of(
+      "weight",      weightArr,
+      "temperature", tempArr,
+      "heartRate",   hrArr,
+      "glucose",     glucoseArr,
+      "bp",          bpArr,
+      "spo2",        spo2Arr
+    ));
+    resp.setDateLabels(dateLabels);
+    resp.setLatest(latest);
+
+    return ResponseEntity.ok(resp);
+}
 }

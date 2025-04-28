@@ -2,7 +2,7 @@ package com.example.iwms.iwms.entity;
 
 import java.sql.Timestamp;
 
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,19 +25,23 @@ import jakarta.persistence.Enumerated;
 @Data
 @Table(name = "recommendations")
 public class Recommendation {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long recommendationId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "userId")
     private User user;
 
-    @OneToOne
+    @ManyToOne                          // ← changed
     @JoinColumn(name = "metric_id", referencedColumnName = "metricId")
     private LatestHealthMetrics metric;
 
+    @Column(nullable = false)
+    private String vital;               // ← new
+
+    @Column(name="recommendation_text", columnDefinition="TEXT")
     private String recommendationText;
+
     @Enumerated(EnumType.STRING)
     private RecommendationStatus status;
 
@@ -47,3 +51,4 @@ public class Recommendation {
     @UpdateTimestamp
     private Timestamp updatedAt;
 }
+

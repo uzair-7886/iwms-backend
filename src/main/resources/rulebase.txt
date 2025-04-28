@@ -322,3 +322,6 @@ THEN
 --------------------------------
 END OF WELLNESS MONITORING RULEBASE
 --------------------------------
+
+
+https://chatgpt.com/s/dr_680fa3d034448191ae33363946645dc2

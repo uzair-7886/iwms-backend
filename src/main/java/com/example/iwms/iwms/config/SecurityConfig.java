@@ -20,6 +20,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll() // Open endpoints for login and register
                         .requestMatchers("/api/dashboard/**").permitAll() // Protect dashboard
                         .requestMatchers("/api/measurements/**").permitAll() // Protect measurements
+                        .requestMatchers("/api/recommendations/**").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();

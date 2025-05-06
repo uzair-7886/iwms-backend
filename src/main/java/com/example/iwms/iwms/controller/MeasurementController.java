@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.Map;
+import java.util.Optional;
 @RestController
 @RequestMapping("/api/measurements")
 public class MeasurementController {
@@ -195,10 +196,24 @@ public class MeasurementController {
         if (authHeader == null || !authHeader.startsWith("Bearer "))
             throw new RuntimeException("Missing or invalid Authorization header");
         String token = authHeader.substring(7);
-        String username = jwtUtil.extractUsername(token);
-        User user = userRepository.findByEmailOrPhone(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-        return user.getUserId();
+        String subject = jwtUtil.extractUsername(token);
+    
+        // 1) Try email/phone first
+        Optional<User> byEmail = userRepository.findByEmailOrPhone(subject);
+        if (byEmail.isPresent()) {
+            return byEmail.get().getUserId();
+        }
+    
+        // 2) Fallback to numeric id
+        try {
+            Long userId = Long.parseLong(subject);
+            // Optionally verify the user exists
+            if (userRepository.existsById(userId)) {
+                return userId;
+            }
+        } catch (NumberFormatException ignored) { }
+    
+        throw new UsernameNotFoundException("User not found: " + subject);
     }
 
     @GetMapping("/history")

@@ -152,11 +152,20 @@ public class AuthController {
         String password = loginRequest.getPassword();
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            String token = jwtUtil.generateToken(userDetails.getUsername());
+            // UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            // String token = jwtUtil.generateToken(userDetails.getUsername());
 
             User user = userRepository.findByEmailOrPhone(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+                    String subject = user.getEmailOrPhone();
+                    if (subject == null || subject.isEmpty()) {
+                        // face-only user: fall back to their DB id
+                        subject = user.getUserId().toString();
+                    }
+                    
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
+                    String token = jwtUtil.generateToken(userDetails.getUsername());
 
             Security security = new Security();
             security.setUser(user);

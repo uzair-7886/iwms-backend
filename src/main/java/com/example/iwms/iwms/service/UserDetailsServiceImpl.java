@@ -15,44 +15,33 @@ import java.util.Optional;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
-
     public UserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
-public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    // First try to find the user by email or phone.
-    Optional<User> userOptional = userRepository.findByEmailOrPhone(username);
-    
-    // If not found, try to parse the username as a userId (in case the user registered via face only).
-    if (!userOptional.isPresent()) {
-        try {
-            Long userId = Long.parseLong(username);
-            userOptional = userRepository.findById(userId);
-        } catch (NumberFormatException e) {
-            // If parsing fails, leave userOptional empty.
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // 1) try email/phone
+        Optional<User> u = userRepository.findByEmailOrPhone(username);
+
+        // 2) if that fails, see if it's just a numeric id
+        if (u.isEmpty()) {
+            try {
+                Long id = Long.parseLong(username);
+                u = userRepository.findById(id);
+            } catch (NumberFormatException ignored) { }
         }
+
+        User user = u.orElseThrow(() ->
+            new UsernameNotFoundException("User not found: " + username)
+        );
+
+        // **IMPORTANT**: return a UserDetails whose .getUsername() == whatever you passed in
+        // so that your JWT-util and your filter stay in sync.
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(username)
+                .password(user.getPassword() != null ? user.getPassword() : "")
+                .roles(user.getRole().toUpperCase())
+                .build();
     }
-    
-    User user = userOptional.orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-    
-    // Use emailOrPhone if available; otherwise, use the userId as the username.
-    String loginUsername = (user.getEmailOrPhone() != null && !user.getEmailOrPhone().isEmpty())
-            ? user.getEmailOrPhone()
-            : user.getUserId().toString();
-    
-    // In case the user registered only with a face, there might be no password (or it could be an empty string).
-    // Adjust this if needed (e.g. by setting a dummy password or handling it in your security configuration).
-    String password = (user.getPassword() != null) ? user.getPassword() : "";
-    
-    return org.springframework.security.core.userdetails.User.builder()
-            .username(loginUsername)
-            .password(password)
-            .roles(user.getRole().toUpperCase())
-            .build();
 }
-
-
-}
-

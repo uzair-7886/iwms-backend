@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import java.util.stream.Collectors;
 @RestController
@@ -37,10 +38,24 @@ public class RecommendationController {
         if (authHeader == null || !authHeader.startsWith("Bearer "))
             throw new RuntimeException("Missing or invalid Authorization header");
         String token = authHeader.substring(7);
-        String username = jwtUtil.extractUsername(token);
-        User user = userRepository.findByEmailOrPhone(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-        return user.getUserId();
+        String subject = jwtUtil.extractUsername(token);
+    
+        // 1) Try email/phone first
+        Optional<User> byEmail = userRepository.findByEmailOrPhone(subject);
+        if (byEmail.isPresent()) {
+            return byEmail.get().getUserId();
+        }
+    
+        // 2) Fallback to numeric id
+        try {
+            Long userId = Long.parseLong(subject);
+            // Optionally verify the user exists
+            if (userRepository.existsById(userId)) {
+                return userId;
+            }
+        } catch (NumberFormatException ignored) { }
+    
+        throw new UsernameNotFoundException("User not found: " + subject);
     }
 
      @PostMapping("/add")
